@@ -8,8 +8,8 @@ const withSession=(path:string)=>`${path}${path.includes('?')?'&':'?'}sessionId=
 export const api={
  status:()=>request<ConnectionStatus>(withSession('/api/wa/status')),
  qr:()=>request<any>(withSession('/api/wa/qr')),
- connect:()=>request<any>(withSession('/api/wa/connect'),{method:'POST'}),
- logout:()=>request<any>(withSession('/api/wa/logout'),{method:'POST'}),
+ connect:()=>request<any>(withSession('/api/wa/connect'),{method:'POST',body:JSON.stringify({sessionId:SESSION_ID})}),
+ logout:()=>request<any>(withSession('/api/wa/logout'),{method:'POST',body:JSON.stringify({sessionId:SESSION_ID})}),
  chats:()=>request<any>(withSession('/api/wa/chats')),
  text:(to:string,text:string)=>request<any>(withSession('/api/wa/messages/text'),{method:'POST',body:JSON.stringify({sessionId:SESSION_ID,jid:to,text})}),
  media:(body:any)=>request<any>(withSession('/api/wa/messages/media'),{method:'POST',body:JSON.stringify({...body,sessionId:SESSION_ID})}),
@@ -27,7 +27,7 @@ export const api={
  chatDelete:(body:any)=>request<any>(withSession('/api/wa/chats/delete'),{method:'POST',body:JSON.stringify({...body,sessionId:SESSION_ID})}),
  group:(jid:string)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}`)), createGroup:(body:any)=>request<any>(withSession('/api/wa/groups'),{method:'POST',body:JSON.stringify({...body,sessionId:SESSION_ID})}),
  groupAdd:(jid:string,body:any)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/participants`),{method:'POST',body:JSON.stringify({...body,sessionId:SESSION_ID})}), groupRemove:(jid:string,body:any)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/participants`),{method:'DELETE',body:JSON.stringify({...body,sessionId:SESSION_ID})}),
- groupSubject:(jid:string,body:any)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/subject`),{method:'PATCH',body:JSON.stringify({...body,sessionId:SESSION_ID})}), groupDescription:(jid:string,body:any)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/description`),{method:'PATCH',body:JSON.stringify({...body,sessionId:SESSION_ID})}), groupInvite:(jid:string)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/invite`)), groupLeave:(jid:string)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/leave`),{method:'POST'}),
+ groupSubject:(jid:string,body:any)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/subject`),{method:'PATCH',body:JSON.stringify({...body,sessionId:SESSION_ID})}), groupDescription:(jid:string,body:any)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/description`),{method:'PATCH',body:JSON.stringify({...body,sessionId:SESSION_ID})}), groupInvite:(jid:string)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/invite`)), groupLeave:(jid:string)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/leave`),{method:'POST',body:JSON.stringify({sessionId:SESSION_ID})}),
  privacy:()=>request<any>(withSession('/api/wa/privacy')), privacyUpdate:(body:any)=>request<any>(withSession('/api/wa/privacy'),{method:'PATCH',body:JSON.stringify({...body,sessionId:SESSION_ID})})
 };
 export {API};
