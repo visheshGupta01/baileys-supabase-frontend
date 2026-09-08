@@ -12,9 +12,8 @@ function App(){
  const [status,setStatus]=useState<ConnectionStatus>({connected:false,status:'closed',sessionId:SESSION_ID}); const [qr,setQr]=useState(''); const [chats,setChats]=useState<Chat[]>([]); const [selected,setSelected]=useState<Chat|null>(null); const [messages,setMessages]=useState<Message[]>([]); const [query,setQuery]=useState(''); const [draft,setDraft]=useState(''); const [panel,setPanel]=useState<'chat'|'tools'>('chat'); const [tool,setTool]=useState('Session'); const [events,setEvents]=useState<any[]>([]); const [busy,setBusy]=useState(false); const [toast,setToast]=useState(''); const [token,setTok]=useState(getToken()); const [mobileNav,setMobileNav]=useState(false);
  const visibleChats=useMemo(()=>chats.filter(c=>(c.name||c.pushName||c.jid).toLowerCase().includes(query.toLowerCase())),[chats,query]);
  const notify=(m:string)=>{setToast(m);setTimeout(()=>setToast(''),2600)};
- const refresh=async()=>{try{const s=await api.status();setStatus(s); if(s.qr){setQr(s.qr)} else if(!s.qrAvailable){try{const q=await api.qr();if(q?.qr){setQr(q.qr)}}catch{}} if(s.status==='qr'&&s.qrAvailable&&!qr){try{const q=await api.qr();if(q?.qr)setQr(q.qr)}catch{}} if(s.connected){const c=await api.chats();setChats(c?.chats||c||[])} }catch(e:any){notify(e.message)}};
+ const refresh=async()=>{try{const s=await api.status();setStatus(s); if(s.connected){const c=await api.chats();setChats(c?.chats||c||[])} }catch(e:any){notify(e.message)}};
  useEffect(()=>{
-  let active=true;
   const names=['whatsapp.connection','whatsapp.qr','whatsapp.messages.upsert','whatsapp.messages.update','whatsapp.chats.upsert','whatsapp.chats.update','whatsapp.contacts.upsert','whatsapp.groups.update','whatsapp.presence.update','whatsapp.history','whatsapp.event'];
   const onQr=(d:any)=>{if(d?.sessionId&&d.sessionId!==SESSION_ID)return;const value=d?.qr||d?.dataUrl||'';if(value){setQr(value);setStatus(v=>({...v,status:'qr',qr:value,qrAvailable:true}))}};
   const onConnection=(d:any)=>{if(d?.sessionId&&d.sessionId!==SESSION_ID)return;setStatus(v=>({...v,...d,connected:d?.status==='connected'||d?.connection==='open'}));if(d?.status==='connected'||d?.connection==='open')setQr('');if(d?.status==='logged_out'||d?.connection==='close')setQr('')};
@@ -25,9 +24,9 @@ function App(){
   joinWhatsAppSession();
   refresh();
   const t=setInterval(refresh,3000);
-  return()=>{active=false;clearInterval(t);socket.off('connect',onConnect);names.forEach(n=>socket.off(n))};
+  return()=>{clearInterval(t);socket.off('connect',onConnect);names.forEach(n=>socket.off(n))};
  },[]);
- const connect=async()=>{setBusy(true);try{setQr('');const r=await api.connect();setStatus(r);notify('Connection requested');await refresh()}catch(e:any){notify(e.message)}finally{setBusy(false)}};
+ const connect=async()=>{setBusy(true);try{setQr('');const r=await api.connect();setStatus(r);notify('Connection requested');}catch(e:any){notify(e.message)}finally{setBusy(false)}};
  const send=async()=>{if(!selected||!draft.trim())return;setBusy(true);try{const r=await api.text(selected.jid,draft.trim());setMessages(v=>[...v,(r?.message||{key:{id:r?.id,remoteJid:selected.jid,fromMe:true},message:{conversation:draft.trim()},messageTimestamp:Date.now()/1000})]);setDraft('')}catch(e:any){notify(e.message)}finally{setBusy(false)}};
  const choose=(c:Chat)=>{setSelected(c);setPanel('chat');setMessages([])};
  return <div className="app">
