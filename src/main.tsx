@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {socket,joinWhatsAppSession} from './socket';
 import {api,setToken,getToken,SESSION_ID} from './api';
 import type {Chat,Message,ConnectionStatus} from './types';
+import QRCode from 'qrcode';
 import {Activity,Archive,AtSign,BarChart3,Bell,BookOpen,Check,ChevronDown,CircleUserRound,Code2,Copy,Database,Download,FileText,FolderOpen,Globe2,Group,Heart,Image as ImageIcon,Info,KeyRound,Link2,Loader2,LogOut,MapPin,Menu,MessageCircle,MoreVertical,Paperclip,Phone,Play,Plus,RefreshCw,Search,Send,Settings,Shield,Smile,SquarePen,Trash2,UserPlus,Users,Video,Volume2,Wifi, X} from 'lucide-react';
 import './styles.css';
 
@@ -15,7 +16,7 @@ function App(){
  const refresh=async()=>{try{const s=await api.status();setStatus(s); if(s.connected){const c=await api.chats();setChats(c?.chats||c||[])} }catch(e:any){notify(e.message)}};
  useEffect(()=>{
   const names=['whatsapp.connection','whatsapp.qr','whatsapp.messages.upsert','whatsapp.messages.update','whatsapp.chats.upsert','whatsapp.chats.update','whatsapp.contacts.upsert','whatsapp.groups.update','whatsapp.presence.update','whatsapp.history','whatsapp.event'];
-  const onQr=(d:any)=>{if(d?.sessionId&&d.sessionId!==SESSION_ID)return;const value=d?.qr||d?.dataUrl||'';if(value){setQr(value);setStatus(v=>({...v,status:'qr',qr:value,qrAvailable:true}))}};
+  const onQr=async(d:any)=>{if(d?.sessionId&&d.sessionId!==SESSION_ID)return;const value=d?.dataUrl||d?.qr||'';if(!value)return;try{const dataUrl=value.startsWith('data:')?value:await QRCode.toDataURL(value,{margin:2,width:360});setQr(dataUrl);setStatus(v=>({...v,status:'qr',qr:value,qrAvailable:true}))}catch(e:any){notify(`QR render failed: ${e.message}`)}};
   const onConnection=(d:any)=>{if(d?.sessionId&&d.sessionId!==SESSION_ID)return;setStatus(v=>({...v,...d,connected:d?.status==='connected'||d?.connection==='open'}));if(d?.status==='connected'||d?.connection==='open')setQr('');if(d?.status==='logged_out'||d?.connection==='close')setQr('')};
   const onConnect=()=>joinWhatsAppSession();
   socket.on('connect',onConnect);
