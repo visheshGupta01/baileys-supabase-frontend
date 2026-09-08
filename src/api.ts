@@ -30,4 +30,3 @@ export const api={
  groupSubject:(jid:string,body:any)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/subject`),{method:'PATCH',body:JSON.stringify({...body,sessionId:SESSION_ID})}), groupDescription:(jid:string,body:any)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/description`),{method:'PATCH',body:JSON.stringify({...body,sessionId:SESSION_ID})}), groupInvite:(jid:string)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/invite`)), groupLeave:(jid:string)=>request<any>(withSession(`/api/wa/groups/${encodeURIComponent(jid)}/leave`),{method:'POST',body:JSON.stringify({sessionId:SESSION_ID})}),
  privacy:()=>request<any>(withSession('/api/wa/privacy')), privacyUpdate:(body:any)=>request<any>(withSession('/api/wa/privacy'),{method:'PATCH',body:JSON.stringify({...body,sessionId:SESSION_ID})})
 };
-export {API};
